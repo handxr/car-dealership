@@ -1,15 +1,18 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { CreateCarDto } from './dto/create-car.dto';
+import { Car } from './interfaces/car.interface';
 
 @Injectable()
 export class CarsService {
-  private cars = [
+  private cars: Car[] = [
     {
-      id: 1,
+      id: uuid(),
       brand: 'Toyota',
       model: 'Corolla',
     },
     {
-      id: 2,
+      id: uuid(),
       brand: 'Honda',
       model: 'Civic',
     },
@@ -19,7 +22,7 @@ export class CarsService {
     return this.cars;
   }
 
-  public getCarById(carId: number) {
+  public getCarById(carId: string) {
     const car = this.cars.find((car) => car.id === carId);
 
     if (!car) {
@@ -32,16 +35,18 @@ export class CarsService {
     return car;
   }
 
-  public createCar(car: any) {
-    this.cars.push({
-      ...car,
-      id: this.cars.length + 1,
-    });
+  public createCar(createCarDto: CreateCarDto) {
+    const newCar: Car = {
+      id: uuid(),
+      ...createCarDto,
+    };
 
-    return car;
+    this.cars.push(newCar);
+
+    return newCar;
   }
 
-  public updateCar(carId: number, car: any) {
+  public updateCar(carId: string, car: any) {
     const index = this.cars.findIndex((car) => car.id === carId);
 
     if (index === -1) {
@@ -56,7 +61,7 @@ export class CarsService {
     return car;
   }
 
-  public deleteCar(carId: number) {
+  public deleteCar(carId: string) {
     const index = this.cars.findIndex((car) => car.id === carId);
 
     if (index === -1) {
