@@ -1,22 +1,12 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import { CreateCarDto } from './dto/create-car.dto';
+import { UpdateCarDto } from './dto/update-car.dto';
 import { Car } from './interfaces/car.interface';
 
 @Injectable()
 export class CarsService {
-  private cars: Car[] = [
-    {
-      id: uuid(),
-      brand: 'Toyota',
-      model: 'Corolla',
-    },
-    {
-      id: uuid(),
-      brand: 'Honda',
-      model: 'Civic',
-    },
-  ];
+  private cars: Car[] = [];
 
   public getAllCars() {
     return this.cars;
@@ -46,19 +36,24 @@ export class CarsService {
     return newCar;
   }
 
-  public updateCar(carId: string, car: any) {
-    const index = this.cars.findIndex((car) => car.id === carId);
+  public updateCar(carId: string, updateCarDto: UpdateCarDto) {
+    const car = this.cars.find((car) => car.id === carId);
 
-    if (index === -1) {
+    if (!car) {
       throw new HttpException(
         `Car with id ${carId} not found`,
         HttpStatus.NOT_FOUND,
       );
     }
 
-    this.cars[index] = car;
+    const index = this.cars.findIndex((car) => car.id === carId);
 
-    return car;
+    this.cars[index] = {
+      ...car,
+      ...updateCarDto,
+    };
+
+    return this.cars[index];
   }
 
   public deleteCar(carId: string) {
@@ -74,5 +69,9 @@ export class CarsService {
     this.cars.splice(index, 1);
 
     return this.cars;
+  }
+
+  public fillCarsWithSeedData(cars: Car[]) {
+    this.cars = cars;
   }
 }
